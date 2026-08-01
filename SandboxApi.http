@@ -1,0 +1,6 @@
+@SandboxApi_HostAddress = http://localhost:5285
+
+GET {{SandboxApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
