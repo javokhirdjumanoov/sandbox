@@ -21,4 +21,8 @@
       <_ContentIncludedByDefault Remove="publish\SandboxApi.staticwebassets.endpoints.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include=".github\workflows\cicd.yml" />
+    </ItemGroup>
+
 </Project>
