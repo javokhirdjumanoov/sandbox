@@ -15,26 +15,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/api/users/{id:int}", async (int id, NpgsqlDataSource dataSource) =>
-{
-    try
-    {
-        await using var command = dataSource.CreateCommand("SELECT id, name FROM users WHERE id = $1");
-        command.Parameters.AddWithValue(id);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        if (!await reader.ReadAsync())
-            return Results.NotFound(new { error = "not_found", message = $"User {id} topilmadi" });
-
-        return Results.Ok(new NameRecord(reader.GetInt32(0), reader.GetString(1)));
-    }
-    catch (Exception ex)
-    {
-        return Results.Json(new { error = "db_error", message = ex.Message }, statusCode: 503);
-    }
-});
-
 app.MapGet("/api/users", async (NpgsqlDataSource dataSource) =>
 {
     try
