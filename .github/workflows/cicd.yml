@@ -22,4 +22,31 @@ jobs:
         run: dotnet restore
 
       - name: Build qilish
-        run: dotnet build --no-restore --configuration Release 
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Pulbish qilish
+        run: dotnet publish --no-build --configuration Release -o ./publish
+
+      - name: SSH kalitni sozlash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Serverga yuborish
+        run: |
+          rsync -avz --delete \
+          -e "ssh -i ~/.ssh/id_ed25519" \
+          ./publish/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/s/
+
+      - name: Servisni qayta ishga tushirish
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "sudo systemctl restart s"
+
+      - name: Tekshirish
+        run: |
+          sleep 5
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "curl -fsS http://127.0.0.1:5000/api/users > /dev/null"
