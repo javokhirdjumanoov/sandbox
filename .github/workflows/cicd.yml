@@ -19,7 +19,7 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Paketlarni tortish
-        uses: dotnet restore
+        run: dotnet restore
 
       - name: Build qilish
-        uses: dotnet build --no-restore --configuration Release 
+        run: dotnet build --no-restore --configuration Release 
