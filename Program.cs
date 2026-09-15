@@ -27,6 +27,7 @@ app.MapGet("/api/users", async (NpgsqlDataSource dataSource) =>
             items.Add(new NameRecord(reader.GetInt32(0), reader.GetString(1)));
         }
         
+        
         return Results.Ok(items);
     }
     catch (Exception ex)
