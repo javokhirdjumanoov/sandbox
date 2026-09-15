@@ -20,14 +20,12 @@ app.MapGet("/api/users", async (NpgsqlDataSource dataSource) =>
     try
     {
         var items = new List<NameRecord>();
-        await using var command = dataSource.CreateCommand("SELECT id, name FROM users ORDER BY id DESC");
+        await using var command = dataSource.CreateCommand("SELECT id FROM users ORDER BY id DESC");
         await using var reader = await command.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
             items.Add(new NameRecord(reader.GetInt32(0), reader.GetString(1)));
         }
-        
-        
         return Results.Ok(items);
     }
     catch (Exception ex)

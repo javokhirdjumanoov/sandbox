@@ -45,3 +45,25 @@ jobs:
           labels: ${{ steps.javoh.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          
+      - name: SSH kalitni sozlash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          
+      - name: Deploy
+        run: |
+          TAG="sha-$(echo ${{ github.sha }} | cut -c1-7)"
+          IMAGE="ghcr.io/${{ github.repository_owner }}/sandbox:$TAG"
+          echo "Deploy: $IMAGE"
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "cd /opt/sandbox && sed -i 's|^IMAGE=.*|IMAGE=$IMAGE|' .env && \
+          docker compose pull api && docker compose up -d api"
+
+      - name: Tekshirish
+        run: |
+          sleep 5
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+          "curl -fsS http://127.0.0.1:5000/api/users > /dev/null"
